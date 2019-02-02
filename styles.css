@@ -1,0 +1,11 @@
+#gameGrid
+{
+    width: 800px;
+    height: 800px;
+}
+
+.gridTile
+{
+    float: left;
+    outline: 1px solid rgb(172, 172, 172);
+}
