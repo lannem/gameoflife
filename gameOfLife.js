@@ -2,8 +2,6 @@ document.addEventListener('DOMContentLoaded', function()
 {
     drawGrid();
     generateStart();
-
-    // updateBoard();§§§
 }, false);
 
 function updateTiles(updatedTileStates)
@@ -22,16 +20,17 @@ function getNumberOfNeighbours(tile)
     var x = parseInt(tile["xPosition"])
     var y = parseInt(tile["yPosition"])
 
-    var topLeft         = x-1 + "." + y-1
-    var topMiddle       = x   + "." + y-1
-    var topRight        = x+1 + "." + y-1
-    var middleRight     = x+1 + "." + y
-    var bottomRight     = x+1 + "." + y+1
-    var bottomMiddle    = x   + "." + y+1
-    var bottomLeft      = x-1 + "." + y+1
-    var middleLeft      = x-1 + "." + y
+    var topLeft         = String(x-1) + "." + String(y-1)
+    var topMiddle       = String(x)   + "." + String(y-1)
+    var topRight        = String(x+1) + "." + String(y-1)
+    var middleRight     = String(x+1) + "." + String(y)
+    var bottomRight     = String(x+1) + "." + String(y+1)
+    var bottomMiddle    = String(x)   + "." + String(y+1)
+    var bottomLeft      = String(x-1) + "." + String(y+1)
+    var middleLeft      = String(x-1) + "." + String(y)
 
     neighbourIds = [topLeft, topMiddle, topRight, middleRight, bottomRight, bottomMiddle, bottomLeft, middleLeft]
+
 
     for(var i=0; i<neighbourIds.length; i++)
     {
@@ -133,6 +132,7 @@ function drawGrid()
     {
         tiles[i].style.width = tileSize + "px";
         tiles[i].style.height = tileSize + "px";
+        tiles[i].onclick = function(){this.style.backgroundColor = this.style.backgroundColor == "rgb(56, 56, 56)" ? "rgb(255, 255, 255)" : "rgb(56, 56, 56)"}
     }
     
 }
