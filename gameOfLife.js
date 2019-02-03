@@ -4,15 +4,92 @@ document.addEventListener('DOMContentLoaded', function()
     generateStart();
 }, false);
 
-function updateTiles(updatedTileStates)
+var activeTileColour = "rgb(56, 56, 56)"
+var inactiveTileColour = "rgb(255, 255, 255)"
+var numberOfTiles = 40;
+
+/////////////////////////// SETUP //////////////////////////
+function drawGrid()
 {
-    for(var i=0; i<updatedTileStates.length; i++)
+    var tileSize = 800/numberOfTiles;
+
+    for(var i=0; i<numberOfTiles; i++)
     {
-        var colour = updatedTileStates[i]["alive"] ? "rgb(56, 56, 56)" : "rgb(255, 255, 255)"
-        document.getElementById(updatedTileStates[i]["xPosition"] + "." + updatedTileStates[i]["yPosition"]).style.backgroundColor = colour
+        for(var j=0; j<numberOfTiles; j++)
+        {
+            document.getElementById("gameGrid").innerHTML += '<div class="gridTile" id="' + i + '.' + j + '"></div>'
+        }
+    }
+
+    var tiles = document.getElementsByClassName("gridTile")
+    for(var i=0; i<tiles.length; i++)
+    {
+        tiles[i].style.width = tileSize + "px";
+        tiles[i].style.height = tileSize + "px";
+        tiles[i].onclick = function(){this.style.backgroundColor = this.style.backgroundColor == activeTileColour ? inactiveTileColour : activeTileColour}
     }
 }
 
+function generateStart()
+{
+    var numberOfStartTiles = Math.floor((Math.random() * 150) + 120);
+    var coordinatesOfStartTiles = [];
+
+    for(var i=0; i<numberOfStartTiles; i++)
+    {
+        var randomXCoordinate = Math.floor((Math.random() * numberOfTiles));
+        var randomYCoordinate = Math.floor((Math.random() * numberOfTiles));
+        coordinatesOfStartTiles.push(randomXCoordinate + "." + randomYCoordinate);
+    }
+
+    for(var i=0; i<coordinatesOfStartTiles.length; i++)
+    {
+        document.getElementById(coordinatesOfStartTiles[i]).style.backgroundColor = activeTileColour;
+    }
+}
+
+///////////////////////////// UPDATE (ITEARATE) /////////////////////////////
+function updateBoard()
+{
+    updateTiles(updateTileStates(storeCurrentState()));
+}
+
+function storeCurrentState()
+{
+    var allTiles = document.getElementsByClassName('gridTile');
+    var currentTileStates = []
+
+    for(var i=0; i<allTiles.length; i++)
+    {
+        var tile = allTiles[i];
+        currentTileStates.push({"active": tile.style.backgroundColor == activeTileColour ? true : false,
+                                "xPosition": tile.id.split(".")[0], 
+                                "yPosition": tile.id.split(".")[1]})
+    }
+
+    return currentTileStates
+}
+
+function updateTileStates(currentTileStates)
+{
+    var updatedTileStates = currentTileStates;
+
+    for(var i=0; i<updatedTileStates.length; i++)
+    {
+        var numberOfNeighbours = getNumberOfNeighbours(updatedTileStates[i])
+
+        if(updatedTileStates[i]["active"] == false && numberOfNeighbours == 3)
+        {
+            updatedTileStates[i]["active"] = true
+        }
+        else if(numberOfNeighbours != 2 && numberOfNeighbours != 3)
+        {
+            updatedTileStates[i]["active"] = false
+        }
+    }
+
+    return updatedTileStates
+}
 function getNumberOfNeighbours(tile)
 {
     var numberOfNeighbours = 0;
@@ -31,108 +108,25 @@ function getNumberOfNeighbours(tile)
 
     neighbourIds = [topLeft, topMiddle, topRight, middleRight, bottomRight, bottomMiddle, bottomLeft, middleLeft]
 
-
     for(var i=0; i<neighbourIds.length; i++)
     {
-        if(document.getElementById(neighbourIds[i]) != null)
+        var neighbour = document.getElementById(neighbourIds[i])
+        if(neighbour != null && neighbour.style.backgroundColor == activeTileColour)
         {
-            if(document.getElementById(neighbourIds[i]).style.backgroundColor == "rgb(56, 56, 56)")
-            {
-                numberOfNeighbours ++
-            }
+            numberOfNeighbours ++
         }
     }
 
     return numberOfNeighbours
 }
 
-function updateTileStates(currentTileStates)
+function updateTiles(updatedTileStates)
 {
-    var updatedTileStates = currentTileStates;
-
     for(var i=0; i<updatedTileStates.length; i++)
     {
-        var numberOfNeighbours = getNumberOfNeighbours(updatedTileStates[i])
+        var tile = updatedTileStates[i]
+        var colour = tile["active"] ? activeTileColour : inactiveTileColour
 
-        if(!updatedTileStates[i].alive)
-        {
-            if(numberOfNeighbours == 3)
-            {
-                updatedTileStates[i]["alive"] = true
-            }
-        }
-        else
-        {
-            if(numberOfNeighbours != 2 && numberOfNeighbours != 3)
-            {
-                updatedTileStates[i]["alive"] = false
-            }
-        }
+        document.getElementById(tile["xPosition"] + "." + tile["yPosition"]).style.backgroundColor = colour
     }
-
-    updateTiles(updatedTileStates);
-    
-}
-
-function storeCurrentState()
-{
-    var tiles = document.getElementsByClassName('gridTile');
-    var currentTileStates = []
-
-    for(var i=0; i<tiles.length; i++)
-    {
-        var tile = tiles[i];
-        var id = tiles[i].id;
-
-        currentTileStates.push({"alive": tile.style.backgroundColor == "rgb(56, 56, 56)" ? true : false, "xPosition": id.split(".")[0], "yPosition": id.split(".")[1]})
-    }
-
-    return currentTileStates
-}
-
-function updateBoard()
-{
-    var currentTileStates = storeCurrentState();
-    updateTileStates(currentTileStates);
-}
-
-function generateStart()
-{
-    var numberOfStartTiles = Math.floor((Math.random() * 50) + 10);
-    var coordinatesOfStartTiles = [];
-
-    for(var i=0; i<numberOfStartTiles; i++)
-    {
-        var randomX = Math.floor((Math.random() * 40));
-        var randomY = Math.floor((Math.random() * 40));
-        coordinatesOfStartTiles.push(randomX + "." + randomY);
-    }
-
-    for(var i=0; i<coordinatesOfStartTiles.length; i++)
-    {
-        document.getElementById(coordinatesOfStartTiles[i]).style.backgroundColor = "rgb(56, 56, 56)";
-    }
-}
-
-function drawGrid()
-{
-    var tileSize = 20;
-    var numberOfTiles = 800/tileSize;
-
-    for(var i=0; i<numberOfTiles; i++)
-    {
-        for(var j=0; j<numberOfTiles; j++)
-        {
-            document.getElementById("gameGrid").innerHTML += '<div class="gridTile" id="' + i + '.' + j + '"></div>'
-        }
-    }
-
-    var tiles = document.getElementsByClassName("gridTile")
-    for(var i=0; i<tiles.length; i++)
-    {
-        tiles[i].style.width = tileSize + "px";
-        tiles[i].style.height = tileSize + "px";
-        tiles[i].onclick = function(){this.style.backgroundColor = this.style.backgroundColor == "rgb(56, 56, 56)" ? "rgb(255, 255, 255)" : "rgb(56, 56, 56)"}
-    }
-    
 }
