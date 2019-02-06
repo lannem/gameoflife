@@ -5,28 +5,30 @@ document.addEventListener('DOMContentLoaded', function()
 
 var activeTileColour = "rgb(56, 56, 56)";
 var inactiveTileColour = "rgb(255, 255, 255)";
+
 var numberOfTiles = 40;
 
-var maxStartTiles = 150;
-var minStartTiles = 120;
+var maxStartTiles = 200;
+var minStartTiles = 150;
 
 var tiles;
 var iterateInterval;
+var secondsBetweenIterations = 1;
 
 /////////////////////////// SETUP //////////////////////////
 function drawGrid()
 {
     var tileSize = 800/numberOfTiles;
-    tiles = {}
+    tiles = {};
 
     for(var i=0; i<numberOfTiles; i++)
     {
         for(var j=0; j<numberOfTiles; j++)
         {
-            var tileId = i + "." + j
+            var tileId = i + "." + j;
 
-            tiles[tileId] = false
-            document.getElementById("gameGrid").innerHTML += '<div class="gridTile" onclick="toggleTileColour(this.id)" id="' + tileId + '"></div>'
+            tiles[tileId] = false;
+            document.getElementById("gameGrid").innerHTML += '<div class="gridTile" onclick="toggleTileColour(this.id)" id="' + tileId + '"></div>';
         }
     }
 
@@ -46,6 +48,8 @@ function toggleTileColour(id)
 
 function startGame()
 {
+    stopGame();
+    
     var numberOfStartTiles = Math.floor((Math.random() * maxStartTiles) + minStartTiles);
     var idsOfStartTiles = [];
 
@@ -62,17 +66,17 @@ function startGame()
         document.getElementById(idsOfStartTiles[i]).style.backgroundColor = activeTileColour;
     }
 
-    iterateInterval = setInterval(function(){updateBoard()}, 1000);
+    iterateInterval = setInterval(function(){updateBoard()}, 1000 * secondsBetweenIterations);
 }
 
 function stopGame()
 {
-    clearInterval(iterateInterval)
+    clearInterval(iterateInterval);
 
     for(var tile in tiles)
     {
-        tiles[tile] = false
-        document.getElementById(tile).style.backgroundColor = inactiveTileColour
+        tiles[tile] = false;
+        document.getElementById(tile).style.backgroundColor = inactiveTileColour;
     }
 }
 
@@ -85,54 +89,54 @@ function updateBoard()
 
 function updateTileStates()
 {
-    var tilesToUpdate = Object.assign({}, tiles)
+    var tilesToUpdate = Object.assign({}, tiles);
 
     for(var tile in tiles)
     {
-        var numberOfNeighbours = getNumberOfNeighbours(tile)
+        var numberOfNeighbours = getNumberOfNeighbours(tile);
 
         if(tiles[tile] == false && numberOfNeighbours == 3)
         {
-            tilesToUpdate[tile] = true
+            tilesToUpdate[tile] = true;
         }
         else if(tiles[tile] == true && numberOfNeighbours != 2 && numberOfNeighbours != 3)
         {
-            tilesToUpdate[tile] = false
+            tilesToUpdate[tile] = false;
         }
     }
 
-    tiles = tilesToUpdate
+    tiles = tilesToUpdate;
 }
 
 function getNumberOfNeighbours(tile)
 {
     var numberOfNeighbours = 0;
 
-    var x = parseInt(tile.split(".")[0])
-    var y = parseInt(tile.split(".")[1])
+    var x = parseInt(tile.split(".")[0]);
+    var y = parseInt(tile.split(".")[1]);
 
-    var topLeft         = String(x-1) + "." + String(y-1)
-    var topMiddle       = String(x)   + "." + String(y-1)
-    var topRight        = String(x+1) + "." + String(y-1)
-    var middleRight     = String(x+1) + "." + String(y)
-    var bottomRight     = String(x+1) + "." + String(y+1)
-    var bottomMiddle    = String(x)   + "." + String(y+1)
-    var bottomLeft      = String(x-1) + "." + String(y+1)
-    var middleLeft      = String(x-1) + "." + String(y)
+    var topLeft         = String(x-1) + "." + String(y-1);
+    var topMiddle       = String(x)   + "." + String(y-1);
+    var topRight        = String(x+1) + "." + String(y-1);
+    var middleRight     = String(x+1) + "." + String(y);
+    var bottomRight     = String(x+1) + "." + String(y+1);
+    var bottomMiddle    = String(x)   + "." + String(y+1);
+    var bottomLeft      = String(x-1) + "." + String(y+1);
+    var middleLeft      = String(x-1) + "." + String(y);
 
-    neighbourIds = [topLeft, topMiddle, topRight, middleRight, bottomRight, bottomMiddle, bottomLeft, middleLeft]
+    neighbourIds = [topLeft, topMiddle, topRight, middleRight, bottomRight, bottomMiddle, bottomLeft, middleLeft];
     
     for(var i=0; i<neighbourIds.length; i++)
     {
-        var neighbourTile = tiles[neighbourIds[i]]
+        var neighbourTile = tiles[neighbourIds[i]];
 
         if(neighbourTile != undefined && neighbourTile)
         {
-            numberOfNeighbours ++
+            numberOfNeighbours ++;
         }
     }
 
-    return numberOfNeighbours
+    return numberOfNeighbours;
 }
 
 function updateTiles()
