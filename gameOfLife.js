@@ -3,12 +3,12 @@ document.addEventListener('DOMContentLoaded', function()
     drawGrid();
 });
 
-var activeTileColour = "rgb(56, 56, 56)"
-var inactiveTileColour = "rgb(255, 255, 255)"
+var activeTileColour = "rgb(56, 56, 56)";
+var inactiveTileColour = "rgb(255, 255, 255)";
 var numberOfTiles = 40;
 
-var tiles
-var interval
+var tiles;
+var iterateInterval;
 
 /////////////////////////// SETUP //////////////////////////
 function drawGrid()
@@ -21,6 +21,7 @@ function drawGrid()
         for(var j=0; j<numberOfTiles; j++)
         {
             var tileId = i + "." + j
+
             tiles[tileId] = false
             document.getElementById("gameGrid").innerHTML += '<div class="gridTile" onclick="toggleTileColour(this.id)" id="' + tileId + '"></div>'
         }
@@ -36,11 +37,11 @@ function drawGrid()
 
 function toggleTileColour(id)
 {
-    document.getElementById(id).style.backgroundColor = tiles[id] ? inactiveTileColour : activeTileColour
-    tiles[id] = !tiles[id]
+    document.getElementById(id).style.backgroundColor = tiles[id] ? inactiveTileColour : activeTileColour;
+    tiles[id] = !tiles[id];
 }
 
-function generateStart()
+function startGame()
 {
     var numberOfStartTiles = Math.floor((Math.random() * 150) + 120);
     var idsOfStartTiles = [];
@@ -58,17 +59,12 @@ function generateStart()
         document.getElementById(idsOfStartTiles[i]).style.backgroundColor = activeTileColour;
     }
 
-   interval = setInterval(function(){updateBoard()}, 1000);
-}
-
-function startGame()
-{
-    generateStart();
+    iterateInterval = setInterval(function(){updateBoard()}, 1000);
 }
 
 function stopGame()
 {
-    clearInterval(interval)
+    clearInterval(iterateInterval)
 
     for(var tile in tiles)
     {
@@ -140,8 +136,7 @@ function updateTiles()
 {
     for(var tile in tiles)
     {
-        var colour = tiles[tile] ? activeTileColour : inactiveTileColour
-
-        document.getElementById(tile).style.backgroundColor = colour
+        var colour = tiles[tile] ? activeTileColour : inactiveTileColour;
+        document.getElementById(tile).style.backgroundColor = colour;
     }
 }
