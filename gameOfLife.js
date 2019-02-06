@@ -7,6 +7,9 @@ var activeTileColour = "rgb(56, 56, 56)";
 var inactiveTileColour = "rgb(255, 255, 255)";
 var numberOfTiles = 40;
 
+var maxStartTiles = 150;
+var minStartTiles = 120;
+
 var tiles;
 var iterateInterval;
 
@@ -43,7 +46,7 @@ function toggleTileColour(id)
 
 function startGame()
 {
-    var numberOfStartTiles = Math.floor((Math.random() * 150) + 120);
+    var numberOfStartTiles = Math.floor((Math.random() * maxStartTiles) + minStartTiles);
     var idsOfStartTiles = [];
 
     for(var i=0; i<numberOfStartTiles; i++)
