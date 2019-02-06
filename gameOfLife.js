@@ -7,109 +7,110 @@ var activeTileColour = "rgb(56, 56, 56)"
 var inactiveTileColour = "rgb(255, 255, 255)"
 var numberOfTiles = 40;
 
-var tiles = []
+var tiles
 var interval
 
 /////////////////////////// SETUP //////////////////////////
 function drawGrid()
 {
     var tileSize = 800/numberOfTiles;
+    tiles = {}
 
     for(var i=0; i<numberOfTiles; i++)
     {
         for(var j=0; j<numberOfTiles; j++)
         {
-            document.getElementById("gameGrid").innerHTML += '<div class="gridTile" id="' + i + '.' + j + '"></div>'
+            var tileId = i + "." + j
+            tiles[tileId] = false
+            document.getElementById("gameGrid").innerHTML += '<div class="gridTile" onclick="toggleTileColour(this.id)" id="' + tileId + '"></div>'
         }
     }
 
-    var tiles = document.getElementsByClassName("gridTile")
-    for(var i=0; i<tiles.length; i++)
+    var gridTiles = document.getElementsByClassName("gridTile")
+    for(var i=0; i<gridTiles.length; i++)
     {
-        tiles[i].style.width = tileSize + "px";
-        tiles[i].style.height = tileSize + "px";
-        tiles[i].onclick = function(){this.style.backgroundColor = this.style.backgroundColor == activeTileColour ? inactiveTileColour : activeTileColour}
+        gridTiles[i].style.width = tileSize + "px";
+        gridTiles[i].style.height = tileSize + "px";
     }
+}
+
+function toggleTileColour(id)
+{
+    document.getElementById(id).style.backgroundColor = tiles[id] ? inactiveTileColour : activeTileColour
+    tiles[id] = !tiles[id]
 }
 
 function generateStart()
 {
     var numberOfStartTiles = Math.floor((Math.random() * 150) + 120);
-    var coordinatesOfStartTiles = [];
+    var idsOfStartTiles = [];
 
     for(var i=0; i<numberOfStartTiles; i++)
     {
         var randomXCoordinate = Math.floor((Math.random() * numberOfTiles));
         var randomYCoordinate = Math.floor((Math.random() * numberOfTiles));
-        coordinatesOfStartTiles.push(randomXCoordinate + "." + randomYCoordinate);
+        idsOfStartTiles.push(randomXCoordinate + "." + randomYCoordinate);
     }
 
-    for(var i=0; i<coordinatesOfStartTiles.length; i++)
+    for(var i=0; i<idsOfStartTiles.length; i++)
     {
-        document.getElementById(coordinatesOfStartTiles[i]).style.backgroundColor = activeTileColour;
-    }
-}
-
-function storeCurrentState()
-{
-    var tileElements = document.getElementsByClassName('gridTile');
-
-    for(var i=0; i<tileElements.length; i++)
-    {
-        var tile = tileElements[i];
-        tiles.push({"active": tile.style.backgroundColor == activeTileColour ? true : false,
-                    "xPosition": tile.id.split(".")[0], 
-                    "yPosition": tile.id.split(".")[1]})
+        tiles[idsOfStartTiles[i]] = true;
+        document.getElementById(idsOfStartTiles[i]).style.backgroundColor = activeTileColour;
     }
 
-    interval = setInterval(function(){updateBoard()}, 1000);
+   interval = setInterval(function(){updateBoard()}, 1000);
 }
 
 function startGame()
 {
     generateStart();
-    storeCurrentState();
 }
 
 function stopGame()
 {
     clearInterval(interval)
-    for(var i=0; i<tiles.length; i++)
+
+    for(var tile in tiles)
     {
-        document.getElementById(tiles[i]["xPosition"] + "." + tiles[i]["yPosition"]).style.backgroundColor = inactiveTileColour
+        tiles[tile] = false
+        document.getElementById(tile).style.backgroundColor = inactiveTileColour
     }
 }
 
 ///////////////////////////// UPDATE (ITEARATE) /////////////////////////////
 function updateBoard()
 {
-    updateTileStates()
+    updateTileStates();
     updateTiles();
 }
 
 function updateTileStates()
 {
-    for(var i=0; i<tiles.length; i++)
-    {
-        var numberOfNeighbours = getNumberOfNeighbours(tiles[i])
+    var tilesToUpdate = Object.assign({}, tiles)
 
-        if(tiles[i]["active"] == false && numberOfNeighbours == 3)
+    for(var tile in tiles)
+    {
+        var numberOfNeighbours = getNumberOfNeighbours(tile)
+
+        if(tiles[tile] == false && numberOfNeighbours == 3)
         {
-            tiles[i]["active"] = true
+            tilesToUpdate[tile] = true
         }
-        else if(numberOfNeighbours != 2 && numberOfNeighbours != 3)
+        else if(tiles[tile] == true && numberOfNeighbours != 2 && numberOfNeighbours != 3)
         {
-            tiles[i]["active"] = false
+            tilesToUpdate[tile] = false
         }
     }
+
+    tiles = tilesToUpdate
 }
 
 function getNumberOfNeighbours(tile)
 {
     var numberOfNeighbours = 0;
 
-    var x = parseInt(tile["xPosition"])
-    var y = parseInt(tile["yPosition"])
+    var x = parseInt(tile.split(".")[0])
+    var y = parseInt(tile.split(".")[1])
 
     var topLeft         = String(x-1) + "." + String(y-1)
     var topMiddle       = String(x)   + "." + String(y-1)
@@ -121,11 +122,12 @@ function getNumberOfNeighbours(tile)
     var middleLeft      = String(x-1) + "." + String(y)
 
     neighbourIds = [topLeft, topMiddle, topRight, middleRight, bottomRight, bottomMiddle, bottomLeft, middleLeft]
-
+    
     for(var i=0; i<neighbourIds.length; i++)
     {
-        var neighbour = document.getElementById(neighbourIds[i])
-        if(neighbour != null && neighbour.style.backgroundColor == activeTileColour)
+        var neighbourTile = tiles[neighbourIds[i]]
+
+        if(neighbourTile != undefined && neighbourTile)
         {
             numberOfNeighbours ++
         }
@@ -136,11 +138,10 @@ function getNumberOfNeighbours(tile)
 
 function updateTiles()
 {
-    for(var i=0; i<tiles.length; i++)
+    for(var tile in tiles)
     {
-        var tile = tiles[i]
-        var colour = tile["active"] ? activeTileColour : inactiveTileColour
+        var colour = tiles[tile] ? activeTileColour : inactiveTileColour
 
-        document.getElementById(tile["xPosition"] + "." + tile["yPosition"]).style.backgroundColor = colour
+        document.getElementById(tile).style.backgroundColor = colour
     }
 }
